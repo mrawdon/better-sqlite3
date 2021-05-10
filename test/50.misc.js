@@ -1,4 +1,5 @@
 'use strict';
+const { expect } = require('chai');
 const Database = require('../.');
 
 describe('miscellaneous', function () {
