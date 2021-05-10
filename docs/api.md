@@ -10,6 +10,7 @@
 - [Database#transaction()](#transactionfunction---function)
 - [Database#pragma()](#pragmastring-options---results)
 - [Database#backup()](#backupdestination-options---promise)
+- [Database#serialize()](#serializeoptions---buffer)
 - [Database#function()](#functionname-options-function---this)
 - [Database#aggregate()](#aggregatename-options---this)
 - [Database#loadExtension()](#loadextensionpath-entrypoint---this)
@@ -20,6 +21,8 @@
 ### new Database(*path*, [*options*])
 
 Creates a new database connection. If the database file does not exist, it is created. This happens synchronously, which means you can start executing queries right away. You can create an [in-memory database](https://www.sqlite.org/inmemorydb.html) by passing `":memory:"` as the first argument.
+
+> In-memory databases can also be created by passing a buffer returned by [`.serialize()`](#serializeoptions---buffer), instead of passing a string as the first argument.
 
 Various options are accepted:
 
@@ -90,7 +93,7 @@ If you'd like to manage transactions manually, you're free to do so with regular
 
 Transaction functions do not work with async functions. Technically speaking, async functions always return after the first `await`, which means the transaction will already be committed before any async code executes. Also, because SQLite3 serializes all transactions, it's generally a very bad idea to keep a transaction open across event loop ticks anyways.
 
-It's important to know that SQLite3 may sometimes rollback a transaction without us asking it to. This can happen either because of an [`ON CONFLICT`](https://sqlite.org/lang_conflict.html) clause, the [`RAISE()`](https://www.sqlite.org/lang_createtrigger.html) trigger function, or certain errors such as `SQLITE_FULL` or `SQLITE_BUSY`. In other words, if you catch an SQLite3 error *within* a transaction, you must be aware that any futher SQL that you execute might not be within the same transaction. Usually, the best course of action for such cases is to simply re-throw the error, exiting the transaction function.
+It's important to know that SQLite3 may sometimes rollback a transaction without us asking it to. This can happen either because of an [`ON CONFLICT`](https://sqlite.org/lang_conflict.html) clause, the [`RAISE()`](https://www.sqlite.org/lang_createtrigger.html) trigger function, or certain errors such as `SQLITE_FULL` or `SQLITE_BUSY`. In other words, if you catch an SQLite3 error *within* a transaction, you must be aware that any further SQL that you execute might not be within the same transaction. Usually, the best course of action for such cases is to simply re-throw the error, exiting the transaction function.
 
 ```js
 try {
@@ -118,7 +121,7 @@ It's better to use this method instead of normal [prepared statements](#prepares
 
 ### .backup(*destination*, [*options*]) -> *promise*
 
-Initiates a [backup](https://www.sqlite.org/backup.html) of the database, returning a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises) for when the backup is complete. If the backup fails, the promise will be rejected with an `Error`. You can optionally backup an attached database by setting the `attached` option to the name of the desired attached database.
+Initiates a [backup](https://www.sqlite.org/backup.html) of the database, returning a [promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises) for when the backup is complete. If the backup fails, the promise will be rejected with an `Error`. You can optionally backup an attached database instead by setting the `attached` option to the name of the desired attached database. A backup file is just a regular SQLite3 database file. It can be opened by [`new Database()`](#new-databasepath-options) just like any SQLite3 database.
 
 ```js
 db.backup(`backup-${Date.now()}.db`)
@@ -151,6 +154,18 @@ db.backup(`backup-${Date.now()}.db`, {
 });
 ```
 
+### .serialize([*options*]) -> *Buffer*
+
+Returns a [buffer](https://nodejs.org/api/buffer.html#buffer_class_buffer) containing the serialized contents of the database. You can optionally serialize an attached database instead by setting the `attached` option to the name of the desired attached database.
+
+The returned buffer can be written to disk to create a regular SQLite3 database file, or it can be opened directly as an in-memory database by passing it to [`new Database()`](#new-databasepath-options).
+
+```js
+const buffer = db.serialize();
+db.close();
+db = new Database(buffer);
+```
+
 ### .function(*name*, [*options*], *function*) -> *this*
 
 Registers a user-defined `function` so that it can be used by SQL statements.
@@ -166,6 +181,8 @@ db.prepare('SELECT add2(?, ?, ?)').pluck().get(12, 4, 18); // => Error: wrong nu
 By default, user-defined functions have a strict number of arguments (determined by `function.length`). You can register multiple functions of the same name, each with a different number of arguments, causing SQLite3 to execute a different function depending on how many arguments were passed to it. If you register two functions with same name and the same number of arguments, the second registration will erase the first one.
 
 If `options.varargs` is `true`, the registered function can accept any number of arguments.
+
+If `options.directOnly` is `true`, the registered function can only be invoked from top-level SQL, and cannot be used in [VIEWs](https://sqlite.org/lang_createview.html), [TRIGGERs](https://sqlite.org/lang_createtrigger.html), or schema structures such as [CHECK constraints](https://www.sqlite.org/lang_createtable.html#ckconst), [DEFAULT clauses](https://www.sqlite.org/lang_createtable.html#dfltval), etc.
 
 If your function is [deterministic](https://en.wikipedia.org/wiki/Deterministic_algorithm), you can set `options.deterministic` to `true`, which may improve performance under some circumstances.
 
@@ -209,7 +226,7 @@ db.prepare('SELECT getAverage(dollars) FROM expenses').pluck().get(); // => 20.2
 
 As shown above, you can use arbitrary JavaScript objects as your aggregation context, as long as a valid SQLite3 value is returned by `result()` in the end. If `step()` doesn't return anything (`undefined`), the aggregate value will not be replaced (be careful of this when using functions that return `undefined` when `null` is desired).
 
-Just like regular [user-defined functions](#functionname-options-function---this), user-defined aggregates can accept multiple arguments. Furthermore, `options.varargs` and `options.deterministic` [are also](#functionname-options-function---this) accepted.
+Just like regular [user-defined functions](#functionname-options-function---this), user-defined aggregates can accept multiple arguments. Furthermore, `options.varargs`, `options.directOnly`, and `options.deterministic` [are also](#functionname-options-function---this) accepted.
 
 If you provide an `inverse()` function, the aggregate can be used as a [window function](https://www.sqlite.org/windowfunctions.html). Where `step()` is used to add a row to the current window, `inverse()` is used to remove a row from the current window. When using window functions, `result()` may be invoked multiple times.
 
@@ -287,8 +304,6 @@ An object representing a single SQL statement.
 - [Properties](#properties-1)
 
 ### .run([*...bindParameters*]) -> *object*
-
-**(only on statements that do not return data)*
 
 Executes the prepared statement. When execution completes it returns an `info` object describing any changes made. The `info` object has two properties:
 
@@ -467,6 +482,8 @@ console.log(cat.name); // => "Joey"
 
 **.reader -> _boolean_** - Whether the prepared statement returns data.
 
+**.readonly -> _boolean_** - Whether the prepared statement is readonly, meaning it does not mutate the database (note that [SQL functions might still change the database indirectly](https://www.sqlite.org/c3ref/stmt_readonly.html) as a side effect, even if the `.readonly` property is `true`).
+
 # Binding Parameters
 
 This section refers to anywhere in the documentation that specifies the optional argument [*`...bindParameters`*].
@@ -504,3 +521,13 @@ Below is an example of mixing anonymous parameters with named parameters.
 const stmt = db.prepare('INSERT INTO people VALUES (@name, @name, ?)');
 stmt.run(45, { name: 'Henry' });
 ```
+
+Here is how `better-sqlite3` converts values between SQLite3 and JavaScript:
+
+|SQLite3|JavaScript|
+|---|---|
+|`NULL`|`null`|
+|`REAL`|`number`|
+|`INTEGER`|`number` [or `BigInt`](https://github.com/JoshuaWise/better-sqlite3/blob/master/docs/integer.md#the-bigint-primitive-type)|
+|`TEXT`|`string`|
+|`BLOB`|[`Buffer`](https://nodejs.org/api/buffer.html#buffer_class_buffer)|

@@ -249,57 +249,61 @@ private:
   explicit Database (sqlite3 * _db_handle, v8::Isolate * isolate, Addon * _addon, v8::Local <v8::Value> _logger);
 #line 142 "./src/objects/database.lzz"
   static void JS_new (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 187 "./src/objects/database.lzz"
+#line 194 "./src/objects/database.lzz"
   static void JS_prepare (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 199 "./src/objects/database.lzz"
+#line 210 "./src/objects/database.lzz"
   static void JS_exec (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 238 "./src/objects/database.lzz"
-  static void JS_pragma (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 243 "./src/objects/database.lzz"
+#line 250 "./src/objects/database.lzz"
   static void JS_backup (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 259 "./src/objects/database.lzz"
+#line 268 "./src/objects/database.lzz"
+  static void JS_serialize (v8::FunctionCallbackInfo <v8 :: Value> const & info);
+#line 290 "./src/objects/database.lzz"
   static void JS_function (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 281 "./src/objects/database.lzz"
+#line 314 "./src/objects/database.lzz"
   static void JS_aggregate (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 308 "./src/objects/database.lzz"
+#line 343 "./src/objects/database.lzz"
   static void JS_loadExtension (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 329 "./src/objects/database.lzz"
-  static void JS_close (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 340 "./src/objects/database.lzz"
-  static void JS_defaultSafeIntegers (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 347 "./src/objects/database.lzz"
-  static void JS_unsafeMode (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 355 "./src/objects/database.lzz"
-  static void JS_open (v8::Local <v8 :: String> _, v8::PropertyCallbackInfo <v8 :: Value> const & info);
-#line 359 "./src/objects/database.lzz"
-  static void JS_inTransaction (v8::Local <v8 :: String> _, v8::PropertyCallbackInfo <v8 :: Value> const & info);
-#line 364 "./src/objects/database.lzz"
-  static int const MAX_BUFFER_SIZE = node::Buffer::kMaxLength > INT_MAX ? INT_MAX : static_cast<int>(node::Buffer::kMaxLength);
 #line 365 "./src/objects/database.lzz"
-  static int const MAX_STRING_SIZE = v8::String::kMaxLength > INT_MAX ? INT_MAX : static_cast<int>(v8::String::kMaxLength);
-#line 367 "./src/objects/database.lzz"
-  sqlite3 * const db_handle;
-#line 368 "./src/objects/database.lzz"
-  bool open;
-#line 369 "./src/objects/database.lzz"
-  bool busy;
-#line 370 "./src/objects/database.lzz"
-  bool safe_ints;
-#line 371 "./src/objects/database.lzz"
-  bool unsafe_mode;
-#line 372 "./src/objects/database.lzz"
-  bool was_js_error;
-#line 373 "./src/objects/database.lzz"
-  bool const has_logger;
-#line 374 "./src/objects/database.lzz"
-  unsigned short int iterators;
+  static void JS_close (v8::FunctionCallbackInfo <v8 :: Value> const & info);
 #line 375 "./src/objects/database.lzz"
+  static void JS_defaultSafeIntegers (v8::FunctionCallbackInfo <v8 :: Value> const & info);
+#line 381 "./src/objects/database.lzz"
+  static void JS_unsafeMode (v8::FunctionCallbackInfo <v8 :: Value> const & info);
+#line 388 "./src/objects/database.lzz"
+  static void JS_open (v8::Local <v8 :: String> _, v8::PropertyCallbackInfo <v8 :: Value> const & info);
+#line 392 "./src/objects/database.lzz"
+  static void JS_inTransaction (v8::Local <v8 :: String> _, v8::PropertyCallbackInfo <v8 :: Value> const & info);
+#line 397 "./src/objects/database.lzz"
+  static bool Deserialize (v8::Local <v8::Object> buffer, Addon * addon, sqlite3 * db_handle, bool readonly);
+#line 422 "./src/objects/database.lzz"
+  static void FreeCallback (char * data, void * _unused);
+#line 426 "./src/objects/database.lzz"
+  static int const MAX_BUFFER_SIZE = node::Buffer::kMaxLength > INT_MAX ? INT_MAX : static_cast<int>(node::Buffer::kMaxLength);
+#line 427 "./src/objects/database.lzz"
+  static int const MAX_STRING_SIZE = v8::String::kMaxLength > INT_MAX ? INT_MAX : static_cast<int>(v8::String::kMaxLength);
+#line 429 "./src/objects/database.lzz"
+  sqlite3 * const db_handle;
+#line 430 "./src/objects/database.lzz"
+  bool open;
+#line 431 "./src/objects/database.lzz"
+  bool busy;
+#line 432 "./src/objects/database.lzz"
+  bool safe_ints;
+#line 433 "./src/objects/database.lzz"
+  bool unsafe_mode;
+#line 434 "./src/objects/database.lzz"
+  bool was_js_error;
+#line 435 "./src/objects/database.lzz"
+  bool const has_logger;
+#line 436 "./src/objects/database.lzz"
+  unsigned short int iterators;
+#line 437 "./src/objects/database.lzz"
   Addon * const addon;
-#line 376 "./src/objects/database.lzz"
+#line 438 "./src/objects/database.lzz"
   CopyablePersistent <v8::Value> const logger;
-#line 377 "./src/objects/database.lzz"
+#line 439 "./src/objects/database.lzz"
   std::set <Statement*, CompareStatement> stmts;
-#line 378 "./src/objects/database.lzz"
+#line 440 "./src/objects/database.lzz"
   std::set <Backup*, CompareBackup> backups;
 };
 #line 1 "./src/objects/statement.lzz"
@@ -337,45 +341,45 @@ private:
   explicit Statement (Database * _db, sqlite3_stmt * _handle, sqlite3_uint64 _id, bool _returns_data);
 #line 79 "./src/objects/statement.lzz"
   static void JS_new (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 139 "./src/objects/statement.lzz"
+#line 143 "./src/objects/statement.lzz"
   static void JS_run (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 162 "./src/objects/statement.lzz"
+#line 166 "./src/objects/statement.lzz"
   static void JS_get (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 177 "./src/objects/statement.lzz"
+#line 181 "./src/objects/statement.lzz"
   static void JS_all (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 198 "./src/objects/statement.lzz"
+#line 202 "./src/objects/statement.lzz"
   static void JS_iterate (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 208 "./src/objects/statement.lzz"
+#line 212 "./src/objects/statement.lzz"
   static void JS_bind (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 219 "./src/objects/statement.lzz"
+#line 223 "./src/objects/statement.lzz"
   static void JS_pluck (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 230 "./src/objects/statement.lzz"
+#line 234 "./src/objects/statement.lzz"
   static void JS_expand (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 241 "./src/objects/statement.lzz"
+#line 245 "./src/objects/statement.lzz"
   static void JS_raw (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 252 "./src/objects/statement.lzz"
+#line 256 "./src/objects/statement.lzz"
   static void JS_safeIntegers (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 261 "./src/objects/statement.lzz"
+#line 265 "./src/objects/statement.lzz"
   static void JS_columns (v8::FunctionCallbackInfo <v8 :: Value> const & info);
-#line 304 "./src/objects/statement.lzz"
-  Database * const db;
-#line 305 "./src/objects/statement.lzz"
-  sqlite3_stmt * const handle;
-#line 306 "./src/objects/statement.lzz"
-  Extras * const extras;
-#line 307 "./src/objects/statement.lzz"
-  bool alive;
 #line 308 "./src/objects/statement.lzz"
-  bool locked;
+  Database * const db;
 #line 309 "./src/objects/statement.lzz"
-  bool bound;
+  sqlite3_stmt * const handle;
 #line 310 "./src/objects/statement.lzz"
-  bool has_bind_map;
+  Extras * const extras;
 #line 311 "./src/objects/statement.lzz"
-  bool safe_ints;
+  bool alive;
 #line 312 "./src/objects/statement.lzz"
-  char mode;
+  bool locked;
 #line 313 "./src/objects/statement.lzz"
+  bool bound;
+#line 314 "./src/objects/statement.lzz"
+  bool has_bind_map;
+#line 315 "./src/objects/statement.lzz"
+  bool safe_ints;
+#line 316 "./src/objects/statement.lzz"
+  char mode;
+#line 317 "./src/objects/statement.lzz"
   bool const returns_data;
 };
 #line 1 "./src/objects/statement-iterator.lzz"
@@ -660,7 +664,7 @@ struct Addon
 #line 38 "./src/better_sqlite3.lzz"
   v8::FunctionCallbackInfo <v8 :: Value> const * privileged_info;
 #line 39 "./src/better_sqlite3.lzz"
-  sqlite3_uint64 bit_field;
+  sqlite3_uint64 next_id;
 #line 40 "./src/better_sqlite3.lzz"
   CS cs;
 #line 41 "./src/better_sqlite3.lzz"
@@ -671,10 +675,6 @@ struct Addon
   static void Cleanup (void * ptr);
 #line 55 "./src/better_sqlite3.lzz"
   sqlite3_uint64 NextId ();
-#line 58 "./src/better_sqlite3.lzz"
-  bool PragmaMode ();
-#line 61 "./src/better_sqlite3.lzz"
-  void SetPragmaMode (bool active);
 };
 #line 16 "./src/util/macros.lzz"
 LZZ_INLINE v8::Local <v8::String> StringFromUtf8 (v8::Isolate * isolate, char const * data, int length)
@@ -873,19 +873,7 @@ LZZ_INLINE void CustomAggregate::xValueBase (sqlite3_context * invocation, bool 
 LZZ_INLINE sqlite3_uint64 Addon::NextId ()
 #line 55 "./src/better_sqlite3.lzz"
                                        {
-                return (bit_field++ << 1) >> 1;
-}
-#line 58 "./src/better_sqlite3.lzz"
-LZZ_INLINE bool Addon::PragmaMode ()
-#line 58 "./src/better_sqlite3.lzz"
-                                 {
-                return bit_field >> 63 != 0;
-}
-#line 61 "./src/better_sqlite3.lzz"
-LZZ_INLINE void Addon::SetPragmaMode (bool active)
-#line 61 "./src/better_sqlite3.lzz"
-                                               {
-                bit_field = (bit_field << 1) >> 1 | static_cast<sqlite3_uint64>(active) << 63;
+                return next_id++;
 }
 #undef LZZ_INLINE
 #endif

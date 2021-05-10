@@ -1,4 +1,4 @@
-# better-sqlite3 [![Build Status](https://travis-ci.org/JoshuaWise/better-sqlite3.svg?branch=master)](https://travis-ci.org/JoshuaWise/better-sqlite3) [![Build status](https://ci.appveyor.com/api/projects/status/ilk8hb8v95m54v6f/branch/master?svg=true)](https://ci.appveyor.com/project/JoshuaWise/better-sqlite3/branch/master)
+# better-sqlite3 [![Build Status](https://github.com/JoshuaWise/better-sqlite3/actions/workflows/build.yml/badge.svg)](https://github.com/JoshuaWise/better-sqlite3/actions/workflows/build.yml?query=branch%3Amaster)
 
 The fastest and simplest library for SQLite3 in Node.js.
 
@@ -32,7 +32,7 @@ The fastest and simplest library for SQLite3 in Node.js.
 npm install better-sqlite3
 ```
 
-> You must be using Node.js v10.20.1 or above. Prebuilt binaries are available for [LTS versions](https://nodejs.org/en/about/releases/) + Linux/OSX.
+> You must be using Node.js v10.20.1 or above. Prebuilt binaries are available for [LTS versions](https://nodejs.org/en/about/releases/).
 
 > If you have trouble installing, check the [troubleshooting guide](./docs/troubleshooting.md).
 
