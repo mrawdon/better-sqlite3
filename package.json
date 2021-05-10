@@ -34,9 +34,11 @@
     "download": "sh ./deps/download.sh",
     "lzz": "lzz -hx hpp -sx cpp -k BETTER_SQLITE3 -d -hl -sl -e ./src/better_sqlite3.lzz",
     "prepublishOnly": "npm run build-release",
+    "postpublish": "prebuild upload-all",
     "publish":  "npm run prebuild-node && npm run prebuild-electron",
-    "prebuild-node": "prebuild -r node -t 10.20.0 -t 12.0.0 --include-regex better_sqlite3.node",
-    "prebuild-electron": "prebuild -r electron -t 4.0.0 -t 5.0.0 -t 6.0.0 -t 7.0.0 -t 8.0.0 -t 10.0.0 --include-regex better_sqlite3.node"
+    "prebuild-upload": "(mv ~/.prebuildrc2 ~/.prebuildrc) && prebuild && (mv ~/.prebuildrc ~/.prebuildrc2)",
+    "prebuild-node": "prebuild -r node -t 10.20.0 -t 12.0.0 -t 12.15.0 --include-regex better_sqlite3.node",
+    "prebuild-electron": "prebuild -r electron -t 4.0.0 -t 5.0.0 -t 6.0.0 -t 7.0.0 -t 8.0.0 -t 9.0.0 -t 10.0.0 --include-regex better_sqlite3.node"
   },
   "license": "MIT",
   "keywords": [
